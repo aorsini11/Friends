@@ -1,9 +1,11 @@
 //Alessandro Orsini and Niral Shah
-//test
+
 package Friends;
 
 import java.io.*;
 import java.util.*;
+
+import sun.security.provider.certpath.Vertex;
 
 public class Friends {
 	
@@ -156,6 +158,30 @@ public class Friends {
 			
 		}
 		
+	} // this is going to return a subgraph ArrayList<Vertex>
+	
+	public static void cliques(String school){ 
+		ArrayList<Vertex> subList= subgraph(school);
+		
+		boolean[] visited= new boolean[subList.size()];
+		 for(int v=0; v<visited.length; v++){
+			 if(!visited[v]){ // indicates a new clique
+				 System.out.println("Clique "+v+":")
+				 dfs(v,visited, subList, school);  
+				  // once a clique has been printed move to next line
+			 }
+		 }
 	}
+	
+	 private void dfs(int v, boolean[] visited, ArrayList<Vertex> subList, String school) {
+	        visited[v] = true;
+	        for (Neighbor nbr=subLists.get(v).adjList; nbr != null; nbr=nbr.next) {
+	            if (!visited[nbr.vertexNum]) {
+	            	System.out.println(subList.get(v).name+"|"+"y"+"|"+school);
+	                dfs(nbr.vertexNum, visited);
+	            }
+	        }
+	    }
+	
 }
 		
