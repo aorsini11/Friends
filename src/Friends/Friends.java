@@ -9,6 +9,8 @@ public class Friends {
 	
 	static BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
 	static Scanner sc = new Scanner(System.in);
+	static Vertex[] group;
+	static HashMap<String, Integer> table = new HashMap<String, Integer>();
 	
 	public static void main(String[] args) throws IOException {
 		System.out.print("Enter friendship file name => ");
@@ -38,7 +40,7 @@ public class Friends {
 					case 1: 
 						System.out.print("Enter the name of the school => ");
 						String school = keyboard.readLine();
-					//	subgraph(school); 
+						subgraph(school); 
 						break;
 					case 2: 
 						System.out.print("Enter the name of the starting person => ");
@@ -102,7 +104,6 @@ public class Friends {
 			
 		//Make people and add them
 		Vertex[] returnArray = new Vertex[people.length];
-		Hashtable<String, Integer> table = new Hashtable<String, Integer>();
 		
 		for(int i=0;i<people.length;i++)
 		{
@@ -146,8 +147,14 @@ public class Friends {
 		return returnArray;
 	}
 	
-	public static void subclass(String schoolName)
+	public static void subgraph(String schoolName)
 	{
+		ArrayList<Vertex> subClass = new ArrayList<Vertex>();
+		int count = 0;
+		for (int i=0; i<group.length;i++)
+		{
+			
+		}
 		
 	}
 }
