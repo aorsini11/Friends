@@ -20,7 +20,7 @@ public class Friends {
 		BufferedReader br = new BufferedReader(new FileReader(infile));
 		int count = Integer.parseInt(br.readLine());
 
-		Vertex[] group = new Vertex[count];
+		group = new Vertex[count];
 		group = build(infile);
 		
 		
@@ -114,6 +114,9 @@ public class Friends {
 			String school = null;
 			if (original.charAt(original.indexOf('|')+1)=='y')
 				school = original.substring(original.lastIndexOf('|')+1,original.length());
+			name = name.toLowerCase().trim();
+			if(school!=null)
+				school = school.toLowerCase().trim();
 			Vertex person = new Vertex(name,school,null);
 			returnArray[i] = person;
 			table.put(name.toLowerCase().trim(), i);
@@ -124,9 +127,11 @@ public class Friends {
 			String original = friendsList.get(i);
 			String friend1name = original.substring(0,original.indexOf('|'));
 			String friend2name = original.substring(original.indexOf('|')+1,original.length());
+			friend1name = friend1name.trim();
+			friend2name = friend2name.trim();
 			
-			int index1 = table.get(friend1name.toLowerCase().trim());
-			int index2 = table.get(friend2name.toLowerCase().trim());
+			int index1 = table.get(friend1name.toLowerCase());
+			int index2 = table.get(friend2name.toLowerCase());
 			
 			Vertex friend1 = returnArray[index1];
 			Vertex friend2 = returnArray[index2];
@@ -149,14 +154,79 @@ public class Friends {
 		return returnArray;
 	}
 	
-	public static void subgraph(String schoolName)
+	public static ArrayList<Vertex> subgraph(String schoolName)
 	{
-		ArrayList<Vertex> subClass = new ArrayList<Vertex>();
+		schoolName = schoolName.toLowerCase();
+		HashMap<String, Integer> schoolTable = new HashMap<String, Integer>();
+		ArrayList<Vertex> subGroup = new ArrayList<Vertex>();
 		int count = 0;
+		//Find all the people that go to a certain school
 		for (int i=0; i<group.length;i++)
 		{
-			
+			if(group[i].school!=null && group[i].school.equals(schoolName))
+			{
+				subGroup.add(group[i]);
+				count++;
+				schoolTable.put(group[i].name, count);
+				
+			}
 		}
+		//Find all edges
+		for(int i=0;i<subGroup.size();i++)
+		{
+			Vertex current = subGroup.get(i);
+			Neighbor first = current.neighbor;
+			Neighbor second = null;
+			while(first!=null)
+			{
+				if(group[first.vertexNum].school!=null && group[first.vertexNum].school.equals(schoolName))
+				{
+					first.vertexNum = schoolTable.get(group[first.vertexNum].name);
+					second = first;
+				}
+				else
+				{
+					if(second==null)
+						current.neighbor = first.next;
+					else
+						second.next = first.next;
+				}
+				first = first.next;
+			}
+		}
+		printGroup(subGroup);
+		return subGroup;
+	}
+	
+	public static void printGroup(ArrayList<Vertex> Group)
+	{
+		// Print #
+		System.out.println(Group.size());
+		// Print each person
+		for(int i = 0; i < Group.size();i++)
+		{
+			if(Group.get(i).school!=null)
+				System.out.println(Group.get(i).name + "|y|"+ Group.get(i).school);
+			else
+				System.out.println(Group.get(i).name + "|n");
+		}
+		// Print each relationship 
+		for(int i = 0; i < Group.size();i++)
+		{
+			Vertex current = Group.get(i);
+			Neighbor ptr = current.neighbor;
+			while(ptr!=null)
+			{
+				if(current.visited==false || Group.get(ptr.vertexNum).visited==false)
+				{
+					System.out.println(current.name + "|" + Group.get(ptr.vertexNum).name);
+					current.visited = true;
+					Group.get(ptr.vertexNum).visited = true;
+				}
+				ptr = ptr.next;
+			}
+		}
+<<<<<<< HEAD
 		
 	} // this is going to return a subgraph ArrayList<Vertex>
 	
@@ -171,6 +241,8 @@ public class Friends {
 				  // once a clique has been printed move to next line
 			 }
 		 }
+=======
+>>>>>>> 49878a688fffd8a09e0f41e79b0adb81d66ff4e4
 	}
 	
 	 private void dfs(int v, boolean[] visited, ArrayList<Vertex> subList, String school) {
