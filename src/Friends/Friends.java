@@ -226,7 +226,6 @@ public class Friends {
 				ptr = ptr.next;
 			}
 		}
-<<<<<<< HEAD
 		
 	} // this is going to return a subgraph ArrayList<Vertex>
 	
@@ -234,6 +233,9 @@ public class Friends {
 		ArrayList<Vertex> subList= subgraph(school);
 		
 		boolean[] visited= new boolean[subList.size()];
+		for (int v=0; v < visited.length; v++) {
+			visited[v] = false;
+		}
 		 for(int v=0; v<visited.length; v++){
 			 if(!visited[v]){ // indicates a new clique
 				 System.out.println("Clique "+v+":")
@@ -241,8 +243,6 @@ public class Friends {
 				  // once a clique has been printed move to next line
 			 }
 		 }
-=======
->>>>>>> 49878a688fffd8a09e0f41e79b0adb81d66ff4e4
 	}
 	
 	 private void dfs(int v, boolean[] visited, ArrayList<Vertex> subList, String school) {
