@@ -57,7 +57,7 @@ public class Friends {
 					//	cliques(sch, group); 
 						break;	
 					case 4: 
-					//	connectors(group, count);
+						connectors(group, count);
 						break;    
 					default: break;
 					}
@@ -71,12 +71,12 @@ public class Friends {
 				System.out.print("\tEnter choice # => ");
 				choice = Integer.parseInt(keyboard.readLine());
 				
-				/*for(int i=0; i<group.length;i++){			//reset EVERYTHING
+				for(int i=0; i<group.length;i++){	
 					group[i].visited=false;
-					group[i].back = -1;
-					group[i].dfs = -1;
-					group[i].schoolIndex = -1;*/
-				//}
+					//group[i].back = -1;
+					//group[i].dfs = -1;
+					//group[i].schoolIndex = -1;*/
+				}
 		
 		}
 	}
@@ -98,11 +98,16 @@ public class Friends {
 			people[i]=br.readLine();
 		}
 		//Make an array of all friend relationships
+		//CHECK THIS TO SEE IF IT WORKS
 		ArrayList<String> friendsList = new ArrayList<String>();
-		friendsList.add(br.readLine());
+		String line = br.readLine();
+		//friendsList.add(line);
 			
-		while(br.readLine()!=null)
-			friendsList.add(br.readLine());
+		while(line!=null)
+		{
+			friendsList.add(line);
+			line=br.readLine();
+		}
 			
 		//Make people and add them
 		Vertex[] returnArray = new Vertex[people.length];
@@ -118,11 +123,12 @@ public class Friends {
 			if(school!=null)
 				school = school.toLowerCase().trim();
 			Vertex person = new Vertex(name,school,null);
+			person.index = i;
 			returnArray[i] = person;
 			table.put(name.toLowerCase().trim(), i);
 		}
 		
-		for(int i=0;i<friendsList.size()-1;i++)
+		for(int i=0;i<friendsList.size();i++)
 		{
 			String original = friendsList.get(i);
 			String friend1name = original.substring(0,original.indexOf('|'));
@@ -150,7 +156,6 @@ public class Friends {
 				friend2.neighbor = new Neighbor(index1,friend2.neighbor);		
 		}
 		
-		
 		return returnArray;
 	}
 	
@@ -166,9 +171,9 @@ public class Friends {
 			if(group[i].school!=null && group[i].school.equals(schoolName))
 			{
 				subGroup.add(group[i]);
-				count++;
-				schoolTable.put(group[i].name, count);
 				
+				schoolTable.put(group[i].name, count);
+				count++;
 			}
 		}
 		//Find all edges
@@ -196,6 +201,185 @@ public class Friends {
 		}
 		printGroup(subGroup);
 		return subGroup;
+	}
+	
+	public static void connectors(Vertex[] group, int count)
+	{
+		//Use depth first search to check for connectors
+		boolean[] conn = new boolean[group.length];
+		int k=1;
+		for(int i=0; i<group.length; i++)
+		{		
+			Vertex first = group[i];
+
+			if(!first.visited)
+			{
+				Stack<Vertex> searchStack = new Stack<Vertex>();
+				searchStack.push(first);
+				while(!searchStack.isEmpty())
+				{	
+					Vertex curr = searchStack.peek();
+					if(!curr.visited){
+						curr.search = k;
+						curr.prev = k;					
+						curr.visited = true;
+						k++;
+					}
+					Neighbor ptr = curr.neighbor;
+					
+					while(ptr != null)
+					{						
+						if(!group[ptr.vertexNum].visited)
+						{	
+							Vertex currFriend = group[ptr.vertexNum];
+							searchStack.push(currFriend);	
+							break;
+						}
+						else
+						{						
+							Vertex start = curr;
+							Vertex next = group[ptr.vertexNum];
+							start.prev = Math.min(start.prev, next.search);
+						}
+						ptr = ptr.next;
+					}
+					
+					if(ptr == null)	//done at this depth
+					{		
+						if(curr.search == first.search)
+						{
+							break;				
+						}																													
+						Vertex next = searchStack.pop();		
+						Vertex start = searchStack.peek();		
+						if(start.search>next.prev)
+						{			
+							start.prev = Math.min(start.prev, next.prev);
+						}
+						if(start.search <= next.prev)
+						{		
+							if(start != first)		
+								conn[start.index] = true;
+							else
+							{		
+								Neighbor Ptr = start.neighbor;
+								while(Ptr != null)
+								{	
+									if(!group[Ptr.vertexNum].visited)	//a vertex is unvisited, so connector
+									{		
+										conn[start.index] = true;			
+										break;
+									}
+									Ptr = Ptr.next;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		// Following code doesn't work but it took too long for me to waste it.
+		
+		/*for(int i = 0; i< group.length;i++)
+		{
+			group[i].index=i;
+		}
+		boolean[] connector = new boolean[group.length];
+		int[] search = new int[group.length];
+		int[] prev = new int[group.length];
+		int k = 1;
+		
+		for(int i = 0; i<group.length; i++)
+		{
+			Vertex firstVert = group[i];
+			if(!firstVert.visited)
+			{
+				Stack<Vertex> searchStack = new Stack<Vertex>();
+				searchStack.push(firstVert);
+				while(!searchStack.isEmpty())
+				{
+					Vertex curr = searchStack.peek();
+					if(!curr.visited)
+					{
+						search[curr.index] = k;
+						prev[curr.index] = k;
+						curr.visited = true;
+						k++;						
+					}
+					
+					Neighbor next = curr.neighbor;
+					while(next!=null)
+					{
+						if(!group[next.vertexNum].visited)
+						{
+							searchStack.push(group[next.vertexNum]);
+							break;
+						}
+						else
+						{
+							Vertex now = curr;
+							Vertex neighbor = group[next.vertexNum];
+							prev[now.index] = Math.min(prev[now.index], search[neighbor.index]);
+						}
+						if(next.next==null)
+							next = null;
+						else
+							next = next.next;
+					}
+					
+					if(next!=null)
+					{
+						if(search[curr.index]==search[firstVert.index])
+								break;
+						Vertex neighbor = searchStack.pop();
+						Vertex now = searchStack.peek();
+						if(search[now.index]>prev[neighbor.index])
+							prev[now.index] = Math.min(prev[now.index], prev[neighbor.index]);
+						if(search[now.index]<=prev[neighbor.index])
+						{
+							if(now!=firstVert)
+							{
+								connector[now.index] = true;
+							}
+							else{
+								Neighbor check = now.neighbor;
+								while(check!=null)
+								{
+									if(!group[check.vertexNum].visited)
+									{
+										connector[now.index] = true;
+										break;			
+									}
+									check = check.next;
+								}
+							}
+							
+						}
+						
+					}
+				}
+			}
+		}*/
+		
+		
+		ArrayList<String> result = new ArrayList<String>();
+		for(int i =0; i<conn.length;i++)
+		{
+			if(conn[i])
+				result.add(group[i].name);
+		}
+		if(result.size()==0)
+			System.out.println("There are no Connectors.");
+		if(result.size()>0)
+		{
+			int i = 0;
+			while(i<result.size()-1)
+			{
+				System.out.print(result.get(i) + ", ");
+				i++;
+			}
+			System.out.println(result.get(i));
+		}
 	}
 	
 	public static void printGroup(ArrayList<Vertex> Group)
